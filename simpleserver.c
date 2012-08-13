@@ -6,6 +6,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <regex.h>
 
 #define MYPORT "3500"
 #define BACKLOG 10
@@ -17,6 +18,33 @@ void *get_in_addr(struct sockaddr *s)
   }
   
   return &(((struct sockaddr_in6*)s)->sin6_addr);
+}
+
+int match(const char *string, char *pattern, char *substring)
+{
+  int    status;
+  regex_t    re;
+  regmatch_t pmatch[2];
+
+  if (regcomp(&re, pattern, REG_EXTENDED) != 0) {
+    return(0);
+  }
+  status = regexec(&re, string, (size_t) 2, pmatch, 0);
+  regfree(&re);
+  if (status != 0) {
+    return(0);
+  }
+  else {
+    int i = 0;
+    int matchstart = (int)pmatch[1].rm_so;
+    int matchend = (int)pmatch[1].rm_eo;
+
+    for(i = 0; i < (matchend - matchstart); i++) {
+      substring[i] = string[i + matchstart];
+    }
+  }
+
+  return(1);
 }
 
 int main(void)
@@ -72,24 +100,43 @@ int main(void)
       printf("++recv()'d %d bytes of data\n", byte_count);
       printf("%s\n", buf);
 
-      //open file and read contents into a string
-      FILE *filestream;
-      char fline[100], filecontents[1024];
-      
-      filestream = fopen("test.html", "r");
-      while(fgets(fline, 100, filestream)){
-        strcat(filecontents, fline);
-      }
-      
-      //determine size of string
-      int i = 0;
-      while(filecontents[i]) {
-        i++;
-      }
+      char substr[64] = {'\0'};
 
-      //send file contents
-      send(newfd, filecontents, i + 1, 0);
+      if(match(buf, "GET (.*) HTTP/1.1", substr)) {
+        //open file and read contents into a string
+        FILE *filestream;
+        char fline[100];
+        char filecontents[1024] = {'\0'};
+      
+        if(!strcmp(substr, "/") || !strcmp(substr, "/index.html")) {
+          strcpy(substr, "/test.html");
+        }
 
+        char filename[64] = ".";
+        strcat(filename, substr);
+
+        if(filestream = fopen(filename, "r")) {
+          while(fgets(fline, 100, filestream)){
+            strcat(filecontents, fline);
+          }
+      
+          //determine size of string
+          int i = 0;
+          while(filecontents[i]) {
+            i++;
+          }
+
+          //send file contents
+          send(newfd, "HTTP/1.0 200 OK\r\n", 17, 0);
+          send(newfd, "\r\n", 2, 0);
+          printf("%s", filecontents);
+          send(newfd, filecontents, i, 0);
+        }
+        else {
+          send(newfd, "HTTP/1.0 404 Not Found\r\n", 24, 0);
+        }
+
+      }
       close(newfd);
       exit(0); //exits just the child process, not the whole program
     }
