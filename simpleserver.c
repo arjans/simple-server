@@ -72,7 +72,7 @@ int main(void)
 
   //set socket options
   
-  setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+  //setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, 1, sizeof(int));
 
   //bind to that socket
 
@@ -112,25 +112,28 @@ int main(void)
           strcpy(substr, "/test.html");
         }
 
+        int i = 0;
+        for(i = 0; i < strlen(substr); i++) {
+          if((substr[i] == '.' && substr[i+1] == '.') || substr[i] == '~') {
+            send(newfd, "<HTML><HEAD><TITLE>Simple Server</TITLE></HEAD><BODY>Access denied.</BODY></HTML>", 81, 0);
+            exit(0);
+          }
+        }
+
         char filename[64] = ".";
         strcat(filename, substr);
+        printf("++file searched: %s\n", filename);
 
         if(filestream = fopen(filename, "r")) {
           while(fgets(fline, 100, filestream)){
             strcat(filecontents, fline);
           }
       
-          //determine size of string
-          int i = 0;
-          while(filecontents[i]) {
-            i++;
-          }
-
           //send file contents
           send(newfd, "HTTP/1.0 200 OK\r\n", 17, 0);
           send(newfd, "\r\n", 2, 0);
           printf("%s", filecontents);
-          send(newfd, filecontents, i, 0);
+          send(newfd, filecontents, (int) strlen(filecontents), 0);
         }
         else {
           send(newfd, "HTTP/1.0 404 Not Found\r\n", 24, 0);
