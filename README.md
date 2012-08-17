@@ -8,7 +8,9 @@ Setup
 To install and run:
 
 Clone the repo: ```git clone https://github.com/jns2/simple-server.git```
+
 Run the Makefile: ```make```
+
 Run the executable: ```./simpleserver```
 
 Usage
