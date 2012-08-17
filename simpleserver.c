@@ -36,14 +36,11 @@ int match(const char *string, char *pattern, char *substring)
   }
   else {
     int i = 0;
-    int matchstart = (int)pmatch[1].rm_so;
-    int matchend = (int)pmatch[1].rm_eo;
-
-    for(i = 0; i < (matchend - matchstart); i++) {
-      substring[i] = string[i + matchstart];
+    for(i = 0; i < ((int)pmatch[1].rm_eo - (int)pmatch[1].rm_so); i++) {
+      substring[i] = string[i + (int)pmatch[1].rm_so];
     }
   }
-
+  
   return(1);
 }
 
@@ -100,31 +97,40 @@ int main(void)
       printf("++recv()'d %d bytes of data\n", byte_count);
       printf("%s\n", buf);
 
-      char substr[64] = {'\0'};
+      char urlpath[64] = {'\0'};
 
-      if(match(buf, "GET (.*) HTTP/1.1", substr)) {
-        //open file and read contents into a string
-        FILE *filestream;
-        char fline[100];
-        char filecontents[1024] = {'\0'};
-      
-        if(!strcmp(substr, "/") || !strcmp(substr, "/index.html")) {
-          strcpy(substr, "/test.html");
+      if(match(buf, "GET (.*) HTTP/1.1", urlpath)) {
+        if(!strcmp(urlpath, "/") || !strcmp(urlpath, "/index.html")) {
+          strcpy(urlpath, "/test.html");
         }
 
         int i = 0;
-        for(i = 0; i < strlen(substr); i++) {
-          if((substr[i] == '.' && substr[i+1] == '.') || substr[i] == '~') {
+        for(i = 0; i < strlen(urlpath); i++) {
+          if((urlpath[i] == '.' && urlpath[i+1] == '.') || urlpath[i] == '~') {
             send(newfd, "<HTML><HEAD><TITLE>Simple Server</TITLE></HEAD><BODY>Access denied.</BODY></HTML>", 81, 0);
             exit(0);
           }
         }
 
-        char filename[64] = ".";
-        strcat(filename, substr);
-        printf("++file searched: %s\n", filename);
+        memmove(urlpath + 1, urlpath, strlen(urlpath));
+        urlpath[0] = '.';
+        printf("++file searched: %s\n", urlpath);
 
-        if(filestream = fopen(filename, "r")) {
+        //open file and determine file size
+        FILE *filestream;
+        filestream = fopen(urlpath, "r");
+        int size;
+
+        fseek(filestream, 0L, SEEK_END);
+        size = ftell(filestream);
+        fseek(filestream, 0L, SEEK_SET);
+
+        //dynamically allocate memory for buffer
+        char *filecontents = malloc(size + 1);
+        char fline[100] = {'\0'};
+
+        //read file contents into a buffer
+        if(filestream) {
           while(fgets(fline, 100, filestream)){
             strcat(filecontents, fline);
           }
@@ -138,7 +144,8 @@ int main(void)
         else {
           send(newfd, "HTTP/1.0 404 Not Found\r\n", 24, 0);
         }
-
+        free(filecontents);
+        fclose(filestream);
       }
       close(newfd);
       exit(0); //exits just the child process, not the whole program
