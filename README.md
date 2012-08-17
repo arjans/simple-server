@@ -5,7 +5,9 @@ A simple web server written in C.
 
 To install, run:
 
+<pre>
 git clone https://github.com/jns2/simple-server.git
+</pre>
 
 make
 
