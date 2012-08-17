@@ -22,7 +22,7 @@ in a different window from where you ran the executable ```./simpleserver```.
 Or point your browser to:
 [localhost:3500](http://localhost:3500/)
 
-In the window where you're running simpleserver, you should see output like this:
+In the window where you're running simpleserver, you should see output like this, where you can see the IP address the request came form, how much data was received over the socket, the content of the request, and what was sent back in response:
 <pre>
 ===OPEN SOCKET===
 ++listener: got packet from 127.0.0.1
