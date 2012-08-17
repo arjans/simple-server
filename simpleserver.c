@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <regex.h>
+#include <unistd.h>
 
 #define MYPORT "3500"
 #define BACKLOG 10
@@ -51,7 +52,6 @@ int main(void)
   socklen_t addr_size;
   int sockfd, newfd;
   char ipstr[INET6_ADDRSTRLEN], buf[512];
-  int yes = 1;
   int byte_count;
 
   // first, load up address structs with getaddrinfo():
