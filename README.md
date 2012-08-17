@@ -3,29 +3,19 @@ simple-server
 
 A simple web server written in C.
 
-To install, run:
+Setup
+-----
+To install and run:
 
-<pre>
-git clone https://github.com/jns2/simple-server.git
-</pre>
-<pre>
-make
-</pre>
+Clone the repo: ```git clone https://github.com/jns2/simple-server.git```
+Run the Makefile: ```make```
+Run the executable: ```./simpleserver```
 
-Then, to run the server:
+Usage
+-----
+To test the server, run:
+```curl localhost:3500```
+in a different window from where you ran the executable ```./simpleserver```.
 
-<pre>
-./simpleserver
-</pre>
-
-To test the server, either run:
-
-<pre>
-curl localhost:3500
-</pre>
-
-in a new terminal window, or point your browser to:
-
-<pre>
-localhost:3500
-</pre>
+Or point your browser to:
+[localhost:3500](localhost:3500)
