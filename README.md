@@ -24,11 +24,15 @@ Or point your browser to:
 
 In the window where you're running simpleserver, you should see output like this:
 <pre>
+===OPEN SOCKET===
 ++listener: got packet from 127.0.0.1
-++recv()'d 385 bytes of data
+++recv()'d 429 bytes of data
+
 GET / HTTP/1.1
 Host: localhost:3500
 Connection: keep-alive
+Cache-Control: max-age=0
+Pragma: no-cache
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_4) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.77 Safari/537.1
 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
 Accept-Encoding: gzip,deflate,sdch
@@ -37,7 +41,7 @@ Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.3
 
 
 ++file searched: ./test.html
-<HTML>
+\<HTML\>
   <HEAD>
     <TITLE>Hello World!</TITLE>
     <LINK rel="stylesheet" type="text/css" href="test.css"/>
@@ -46,4 +50,6 @@ Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.3
     Hello World!
   </BODY>
 </HTML>
+
+===SOCKET CLOSED===
 </pre>
