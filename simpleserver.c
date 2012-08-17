@@ -90,11 +90,12 @@ int main(void)
 
       //received data
       byte_count = recv(newfd, buf, sizeof buf, 0);
+      printf("===OPEN SOCKET===\n");
       printf("++listener: got packet from %s\n",
              inet_ntop(their_addr.ss_family,
                        get_in_addr((struct sockaddr *)&their_addr),
                        ipstr, sizeof ipstr));
-      printf("++recv()'d %d bytes of data\n", byte_count);
+      printf("++recv()'d %d bytes of data\n\n", byte_count);
       printf("%s\n", buf);
 
       char urlpath[64] = {'\0'};
@@ -138,16 +139,22 @@ int main(void)
           //send file contents
           send(newfd, "HTTP/1.0 200 OK\r\n", 17, 0);
           send(newfd, "\r\n", 2, 0);
-          printf("%s", filecontents);
+          printf("%s\n", filecontents);
           send(newfd, filecontents, (int) strlen(filecontents), 0);
         }
         else {
           send(newfd, "HTTP/1.0 404 Not Found\r\n", 24, 0);
+          free(filecontents);
+          fclose(filestream);
+          close(newfd);
+          printf("===SOCKET CLOSED===\n");
+          exit(0); //exits just the child process, not the whole program
         }
         free(filecontents);
         fclose(filestream);
       }
       close(newfd);
+      printf("===SOCKET CLOSED===\n");
       exit(0); //exits just the child process, not the whole program
     }
     close(newfd);
