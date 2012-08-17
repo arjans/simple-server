@@ -20,4 +20,4 @@ To test the server, run:
 in a different window from where you ran the executable ```./simpleserver```.
 
 Or point your browser to:
-[localhost:3500](localhost:3500)
+[localhost:3500](http://localhost:3500/)
